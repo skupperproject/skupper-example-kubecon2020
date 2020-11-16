@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: load-gen
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      application: load-gen
+  template:
+    metadata:
+      labels:
+        application: load-gen
+    spec:
+      containers:
+      - name: server
+        env:
+        image: quay.io/ted_ross/load-gen-jvm
+        imagePullPolicy: IfNotPresent
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: load-gen
+spec:
+  ports:
+  - port: 8080
+    targetPort: 8080
+  selector:
+    application: load-gen
