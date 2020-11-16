@@ -1,0 +1,9 @@
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: greeting-kn
+spec:
+  template:
+    spec:
+      containers:
+      - image: quay.io/ted_ross/throttle-service

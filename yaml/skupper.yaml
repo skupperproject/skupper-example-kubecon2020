@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    skupper.io/proxy: http
+    skupper.io/target: greeting-kn.knativetutorial
+  name: greeting
+spec:
+  ports:
+  - name: http
+    port: 80
