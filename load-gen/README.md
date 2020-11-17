@@ -8,13 +8,19 @@ If you want to learn more about Quarkus, please visit its website: https://quark
 
 This application runs a variable load against a web service called "greeting" with path "/hello".
 
-To control it, use the "/set_load/<N>" path to this application.  After setting the load, the return will contain information about the number of requests sent, failures, the last error, and the current requests in-flight.  The value <N> is the desired number of in-flight requests (concurrency).
+### /loadgen/set/<N>
+
+To control it, use the "/loadgen/set/<N>" path to this application.  After setting the load, the return will contain information about the number of requests sent, failures, the last error, and the current requests in-flight.  The value <N> is the desired number of in-flight requests (concurrency).
 
 Set N == 0 to stop the load.
 Set N == 1 for synchronous load (only one request at a time)
 Set N > 1 for parallel load
 
 This is useful for observing the action of Skupper load-balancing across multiple service-instances.
+
+### /loadgen/status
+
+Use the "/loadgen/status" path to get a current histogram showing how the load is being balanced across different server instances.  The result lists the number of requests supplied by each server instance for the last 100 requests received.
 
 ## Running the application in dev mode
 
