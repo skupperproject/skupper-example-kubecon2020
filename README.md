@@ -16,7 +16,7 @@ load-generating client will run on Private-D.
 
 ![Topology Diagram](images/topology.png)
 
-## Setting up KNative Serving
+## Set up KNative Serving
 
 KNative Serving must be configured on the two sites where instances of the
 service will run (Public-A, Private-C).  The following instructions were
@@ -57,7 +57,7 @@ You will use the Skupper command line tool to set up the network.  Download
 instructions can be found on the [Getting Started](https://skupper.io/start/index.html)
 page of the Skupper website.
 
-## Setting up the Skupper network
+## Set up the Skupper network
 
 In the context of each cloud site, run the `skupper init` command to install
 skupper into the namespace.  For Public-A and Private-C, you must use the
@@ -106,15 +106,15 @@ skupper connect puba.yaml --cost 5
 skupper connect pubb.yaml
 ```
 
-Once the network makes its connections can establishes its neighbors and
+Once the network makes its connections and establishes its neighbors and
 topology, the `skupper status` command will display the site's view of the
 network.
 
 To access the Skupper console, use `kubectl get services` on Private-C to find
-the external IP address of the skupper-controller service.  Point your web
+the external IP address of the `skupper-controller` service.  Point your web
 browser to this address followed by `:8080`.
 
-## Launching the service instances
+## Launch the service instances
 
 On both Public-A and Private-C, install the KNative service and use Skupper to expose the services across the network:
 ```
@@ -162,6 +162,9 @@ curl http://${LOAD_GEN_IP}:8080/loadgen/status
 
 This will display the proportion of responses by service instance for the last 100 responses.
 
-With the configuration described in this document, a concurrency of `1` will result in all of the responses coming from the service instance in Private-C.  With a concurrency of `10`, the service instance in Public-A will spin up to handle a portion of the request load.
+With the configuration described in this document, a concurrency of `1` will
+result in all of the responses coming from the service instance in Private-C.
+With a concurrency of `10`, the service instance in Public-A will spin up to
+handle a portion of the request load.
 
 
