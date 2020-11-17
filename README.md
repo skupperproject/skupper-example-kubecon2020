@@ -11,8 +11,8 @@ matter which flavor of Kubernetes is running in each location.
 
 Since you may not have access to the same set of cloud platforms, we will
 refer to the locations as Public-A, Public-B, Private-C, and Private-D.
-Public-A and Private-C will host instances of the service and the
-load-generating client will run on Private-D.
+Public-A and Private-C will host instances of the service and Private-D will
+host the load-generating client.
 
 ![Topology Diagram](images/topology.png)
 
@@ -112,7 +112,8 @@ network.
 
 To access the Skupper console, use `kubectl get services` on Private-C to find
 the external IP address of the `skupper-controller` service.  Point your web
-browser to this address followed by `:8080`.
+browser to this address followed by `:8080`.  You may need to create an
+ingress, route, or tunnel to access this service from your web browser.
 
 ## Launch the service instances
 
@@ -143,7 +144,10 @@ On Private-D:
 kubectl get services
 ```
 
-Find the IP address of the `load-gen` service and use that address in a curl command to set the concurrency:
+Find the IP address of the `load-gen` service and use that address in a curl
+command to set the concurrency.  Depending on how your Private-D cluster is
+set up, you may need to create an ingress, route, or tunnel to access it from
+your browser.
 
 ```
 curl http://${LOAD_GEN_IP}:8080/loadgen/set/1
