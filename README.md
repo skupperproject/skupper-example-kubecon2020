@@ -66,8 +66,8 @@ In Public-B and Private-C, you may use any namespace you like.
 
 On Public-A:
 ```
-skupper init -n knativetutorial --site-name PubA
-skupper connection-token puba.yaml
+skupper -n knativetutorial init --site-name PubA
+skupper -n knativetutorial connection-token puba.yaml
 ```
 
 On Public-B:
@@ -78,7 +78,7 @@ skupper connection-token pubb.yaml
 
 On Private-C we will enable console access:
 ```
-skupper init -n knativetutorial --site-name PrivC --enable-console --console-auth unsecured
+skupper -n knativetutorial init --site-name PrivC --enable-console --console-auth unsecured
 ```
 
 On Private-D:
@@ -112,7 +112,7 @@ network.
 
 To access the Skupper console, use `kubectl get services` on Private-C to find
 the external IP address of the skupper-controller service.  Point your web
-browser to this address followed by ':8080'.
+browser to this address followed by `:8080`.
 
 ## Launching the service instances
 
@@ -131,6 +131,37 @@ On Private-D, deploy the load-generating client:
 kubectl apply -f yaml/load-gen.yaml
 ```
 
+## Adjust the generated load on the services
 
+The load-gen client starts up with zero load.  It provides two web APIs: One
+for setting the concurrency (load) and another for viewing the distribution of
+service instances handling its requests.  Begin by finding the service address
+for the load-gen deployment.
+
+On Private-D:
+```
+kubectl get services
+```
+
+Find the IP address of the `load-gen` service and use that address in a curl command to set the concurrency:
+
+```
+curl http://${LOAD_GEN_IP}:8080/loadgen/set/1
+```
+
+The number at the end of the query string is the desired concurrency.  The
+load generator will issue N concurrent requests to the `greeting` service and
+issue a new request each time it receives a response in order to maintain a
+constant backlog of N in-flight requests.
+
+To view a histogram of service instances that are responding to requests, use the following command:
+
+```
+curl http://${LOAD_GEN_IP}:8080/loadgen/status
+```
+
+This will display the proportion of responses by service instance for the last 100 responses.
+
+With the configuration described in this document, a concurrency of `1` will result in all of the responses coming from the service instance in Private-C.  With a concurrency of `10`, the service instance in Public-A will spin up to handle a portion of the request load.
 
 
