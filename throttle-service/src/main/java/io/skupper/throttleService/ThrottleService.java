@@ -65,8 +65,8 @@ public class ThrottleService {
         // Set up a timer to process deferred responses in batches every 100 milliseconds.
         //
         vertx.setPeriodic(100, l -> {
-            sendSlots = ratePerTenth;
             synchronized(lock) {
+                sendSlots = ratePerTenth;
                 while (sendSlots > 0 && !pendingResponses.isEmpty()) {
                     sendSlots--;
                     String                    response = pendingResponses.remove(0);
