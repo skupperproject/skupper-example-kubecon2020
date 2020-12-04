@@ -39,8 +39,14 @@ public class ThrottleService {
 
     private int ratePerTenth;
     private String hostname  = System.getenv("HOSTNAME");
-    private int sendSlots    = 1;
     private int count        = 0;
+
+    //
+    // The following state members are accessed by multiple threads.  Access to these
+    // variables must be synchronized.
+    //
+    private Object lock = new Object();
+    private int sendSlots    = 1;
     private List<CompletableFuture<String>> pendingFutures   = new ArrayList<CompletableFuture<String>>();
     private List<String>                    pendingResponses = new ArrayList<String>();
     
@@ -60,11 +66,13 @@ public class ThrottleService {
         //
         vertx.setPeriodic(100, l -> {
             sendSlots = ratePerTenth;
-            while (sendSlots > 0 && !pendingResponses.isEmpty()) {
-                sendSlots--;
-                String                    response = pendingResponses.remove(0);
-                CompletableFuture<String> future   = pendingFutures.remove(0);
-                future.complete(response);
+            synchronized(lock) {
+                while (sendSlots > 0 && !pendingResponses.isEmpty()) {
+                    sendSlots--;
+                    String                    response = pendingResponses.remove(0);
+                    CompletableFuture<String> future   = pendingFutures.remove(0);
+                    future.complete(response);
+                }
             }
         });
     }
@@ -86,12 +94,19 @@ public class ThrottleService {
         // If there is at least one available slot, respond immediately.  If not, we are being
         // rate-limited and the response must be deferred.
         //
-        if (sendSlots > 0) {
-            sendSlots--;
+        boolean noDelay = false;
+        synchronized(lock) {
+            if (sendSlots > 0) {
+                sendSlots--;
+                noDelay = true;
+            } else {
+                pendingResponses.add(response);
+                pendingFutures.add(future);
+            }
+        } 
+
+        if (noDelay) {
             future.complete(response);
-        } else {
-            pendingResponses.add(response);
-            pendingFutures.add(future);
         }
 
         return future;
